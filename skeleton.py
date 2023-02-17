@@ -265,7 +265,7 @@ print("The codes and tariffs have been read from 'alg_codes_and_tariffs.txt':")
 ############
 ############ END OF SECTOR 5 (IGNORE THIS COMMENT)
 
-my_user_name = "abcd12"
+my_user_name = "tgp35"
 
 ############ START OF SECTOR 6 (IGNORE THIS COMMENT)
 ############
@@ -278,8 +278,8 @@ my_user_name = "abcd12"
 ############
 ############ END OF SECTOR 6 (IGNORE THIS COMMENT)
 
-my_first_name = ""
-my_last_name = ""
+my_first_name = "William"
+my_last_name = "Henderson"
 
 ############ START OF SECTOR 7 (IGNORE THIS COMMENT)
 ############
