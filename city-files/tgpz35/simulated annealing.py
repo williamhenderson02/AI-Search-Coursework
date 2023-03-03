@@ -324,7 +324,7 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
-
+print(dist_matrix)
 
 
 
