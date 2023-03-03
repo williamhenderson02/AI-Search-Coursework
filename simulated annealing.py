@@ -289,7 +289,7 @@ my_last_name = "Henderson"
 ############
 ############ END OF SECTOR 7 (IGNORE THIS COMMENT)
 
-algorithm_code = ""
+algorithm_code = "SA"
 
 ############ START OF SECTOR 8 (IGNORE THIS COMMENT)
 ############
