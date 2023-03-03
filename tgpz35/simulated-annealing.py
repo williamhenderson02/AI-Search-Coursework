@@ -327,7 +327,7 @@ added_note = ""
 print(dist_matrix)
 
 tour = []
-tour_length = len(tour)
+tour_length = 0
 
 unvisted_cities = []
 
@@ -340,9 +340,13 @@ for i in range(num_cities):
     unvisted_cities.remove(city)
 
 print(tour)
-    
 
-    
+for i in range(0, len(tour)):
+    tour_length += dist_matrix[tour[i-1]][tour[i]]
+
+print(tour_length)
+
+
 
 
 
