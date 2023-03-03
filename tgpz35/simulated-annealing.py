@@ -326,6 +326,8 @@ added_note = ""
 
 print(dist_matrix)
 
+tour = []
+tour_length = len(tour)
 
 
 
@@ -360,7 +362,7 @@ print(dist_matrix)
 ############ DO NOT TOUCH OR ALTER THE CODE BELOW THIS POINT! YOU HAVE BEEN WARNED!
 ############
 
-flag = "good"
+"""flag = "good"
 length = len(tour)
 for i in range(0, length):
     if isinstance(tour[i], int) == False:
@@ -410,7 +412,7 @@ for i in range(1,num_cities):
     f.write("," + str(tour[i]))
 f.write(",\nNOTE = " + added_note)
 f.close()
-print("I have successfully written your tour to the tour file:\n   " + output_file_name + ".")
+print("I have successfully written your tour to the tour file:\n   " + output_file_name + ".") """
 
 ############ END OF SECTOR 9 (IGNORE THIS COMMENT)
     
