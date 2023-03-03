@@ -329,6 +329,21 @@ print(dist_matrix)
 tour = []
 tour_length = len(tour)
 
+unvisted_cities = []
+
+for i in range(num_cities):
+    unvisted_cities.append(i)
+
+for i in range(num_cities):
+    city = random.choice(unvisted_cities)
+    tour.append(city)
+    unvisted_cities.remove(city)
+
+print(tour)
+    
+
+    
+
 
 
 
