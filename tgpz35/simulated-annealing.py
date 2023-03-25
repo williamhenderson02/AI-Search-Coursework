@@ -15,6 +15,7 @@ import os
 import sys
 import time
 import random
+import math
 
 ############ START OF SECTOR 1 (IGNORE THIS COMMENT)
 ############
@@ -324,46 +325,63 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
-print(dist_matrix)
+#print(dist_matrix)
 
 tour = []
-tour_length = 0
 
 unvisted_cities = []
 
-for i in range(num_cities):
-    unvisted_cities.append(i)
+epsilon = 0.5
+schedule = [5,5,5,5,5,5,5]
 
-for i in range(num_cities):
-    city = random.choice(unvisted_cities)
-    tour.append(city)
-    unvisted_cities.remove(city)
+# create random tour
+def random_tour():
+    new_tour = []
+    for i in range(num_cities):
+        unvisted_cities.append(i)
 
-print(tour)
+    for i in range(num_cities):
+        city = random.choice(unvisted_cities)
+        new_tour.append(city)
+        unvisted_cities.remove(city)
+    
+    return new_tour 
 
-for i in range(0, len(tour)):
-    tour_length += dist_matrix[tour[i-1]][tour[i]]
+#calculate length of tour
+def calc_tour_length(tour):
+    tour_length = 0
+    for i in range(0, len(tour)):
+        tour_length += dist_matrix[tour[i-1]][tour[i]]
 
-print(tour_length)
-
-
-
-
-
-
-
-
-
-
-
+    return tour_length
 
 
+def simulated_annealing(tour):
+    print(tour)
 
+    for t in reversed(range(1,100)):
+        #T = schedule[t]
+        #if T < epsilon:
+            #return tour
+        #else:
+        successor = random_tour()
+        successor_length = calc_tour_length(successor)
+        tour_length = calc_tour_length(tour)
+        change =  successor_length - tour_length
+        print(change)
 
+        if change >= 0:
+            tour = successor
 
+        elif (math.e**((change)/t)) > random.randint(0,1):
+            tour = successor
+    
+    return tour
 
+tour = random_tour()
+final_tour = simulated_annealing(tour)
 
-
+print(calc_tour_length(final_tour))
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
 ############
