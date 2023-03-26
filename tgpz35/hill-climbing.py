@@ -290,7 +290,7 @@ my_last_name = "Henderson"
 ############
 ############ END OF SECTOR 7 (IGNORE THIS COMMENT)
 
-algorithm_code = "SA"
+algorithm_code = "HC"
 
 ############ START OF SECTOR 8 (IGNORE THIS COMMENT)
 ############
@@ -357,9 +357,9 @@ def calc_tour_length(tour):
 
 
 def simulated_annealing(tour):
-    print(tour)
+    best_length = 10000
 
-    for t in reversed(range(1,100)):
+    for t in reversed(range(1,10000)):
         #T = schedule[t]
         #if T < epsilon:
             #return tour
@@ -368,14 +368,20 @@ def simulated_annealing(tour):
         successor_length = calc_tour_length(successor)
         tour_length = calc_tour_length(tour)
         change =  successor_length - tour_length
-        print(change)
 
         if change >= 0:
             tour = successor
+            length = calc_tour_length(tour)
+            if length < best_length:
+                best_length = length
 
         elif (math.e**((change)/t)) > random.randint(0,1):
             tour = successor
+            length = calc_tour_length(tour)
+            if length < best_length:
+                best_length = length
     
+    print(best_length)
     return tour
 
 tour = random_tour()
