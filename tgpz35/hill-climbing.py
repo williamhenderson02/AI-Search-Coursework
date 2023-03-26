@@ -363,19 +363,40 @@ def get_sucessors(tour):
                 successor[j] = temp
                 successors.append(successor)
 
-    print(successors)
+    return successors
+
+def get_best_successor(successors):
+    best_successor_length = 10000
+    best_successor = []
+    for successor in successors:
+        length = calc_tour_length(successor)
+        if length < best_successor_length:
+            best_successor_length = length
+            best_successor = successor
+
+    return best_successor_length, best_successor
 
 def hill_climbing(tour):
-    for i in range(1,100):
+    for i in range(0,1000000):
+        successors = get_sucessors(tour)
+        best_successor_length, best_successor = get_best_successor(successors)
+        current_dist = calc_tour_length(tour)
 
-        return
+        if best_successor_length > current_dist:
+            print("could not find a better successor")
+            return tour, current_dist
+        else:
+            tour = best_successor
+
+    print("iteration finshed")
+    return tour, current_dist
 
 tour = random_tour()
 print(tour)
-length = calc_tour_length(tour)
-print(length)
 
-get_sucessors(tour)
+tour, current_dist = hill_climbing(tour)
+print(tour)
+print(current_dist)
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
 ############
