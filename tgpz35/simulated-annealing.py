@@ -328,20 +328,24 @@ added_note = ""
 #print(dist_matrix)
 
 tour = []
+
 unvisted_cities = []
 
-# create initial tour
+epsilon = 0.5
+schedule = [5,5,5,5,5,5,5]
+
+# create random tour
 def random_tour():
-    tour = []
+    new_tour = []
     for i in range(num_cities):
         unvisted_cities.append(i)
 
     for i in range(num_cities):
         city = random.choice(unvisted_cities)
-        tour.append(city)
+        new_tour.append(city)
         unvisted_cities.remove(city)
     
-    return tour 
+    return new_tour 
 
 #calculate length of tour
 def calc_tour_length(tour):
@@ -351,31 +355,39 @@ def calc_tour_length(tour):
 
     return tour_length
 
-def get_sucessors(tour):
-    successors = []
-    sum = 0
-    for i in range(0,len(tour) - 1):
-        for j in range(i+1,len(tour)):
-            if i != j:
-                successor = tour.copy()
-                temp = successor[i]
-                successor[i] = successor[j]
-                successor[j] = temp
-                successors.append(successor)
 
-    print(successors)
+def simulated_annealing(tour):
+    best_length = 10000
 
-def hill_climbing(tour):
-    for i in range(1,100):
+    for t in reversed(range(1,10000)):
+        #T = schedule[t]
+        #if T < epsilon:
+            #return tour
+        #else:
+        successor = random_tour()
+        successor_length = calc_tour_length(successor)
+        tour_length = calc_tour_length(tour)
+        change =  successor_length - tour_length
 
-        return
+        if change >= 0:
+            tour = successor
+            length = calc_tour_length(tour)
+            if length < best_length:
+                best_length = length
+
+        elif (math.e**((change)/t)) > random.randint(0,1):
+            tour = successor
+            length = calc_tour_length(tour)
+            if length < best_length:
+                best_length = length
+    
+    print(best_length)
+    return tour
 
 tour = random_tour()
-print(tour)
-length = calc_tour_length(tour)
-print(length)
+final_tour = simulated_annealing(tour)
 
-get_sucessors(tour)
+print(calc_tour_length(final_tour))
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
 ############
