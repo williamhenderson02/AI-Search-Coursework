@@ -290,7 +290,7 @@ my_last_name = "Henderson"
 ############
 ############ END OF SECTOR 7 (IGNORE THIS COMMENT)
 
-algorithm_code = "SA"
+algorithm_code = "HC"
 
 ############ START OF SECTOR 8 (IGNORE THIS COMMENT)
 ############
@@ -366,7 +366,7 @@ def get_sucessors(tour):
     return successors
 
 def get_best_successor(successors):
-    best_successor_length = 10000
+    best_successor_length = 100000000
     best_successor = []
     for successor in successors:
         length = calc_tour_length(successor)
@@ -377,26 +377,22 @@ def get_best_successor(successors):
     return best_successor_length, best_successor
 
 def hill_climbing(tour):
-    for i in range(0,1000000):
+    for i in range(0,1000):
+        print(i)
         successors = get_sucessors(tour)
         best_successor_length, best_successor = get_best_successor(successors)
         current_dist = calc_tour_length(tour)
 
-        if best_successor_length > current_dist:
-            print("could not find a better successor")
+        if best_successor_length >= current_dist:
             return tour, current_dist
         else:
             tour = best_successor
-
-    print("iteration finshed")
     return tour, current_dist
 
 tour = random_tour()
-print(tour)
-
-tour, current_dist = hill_climbing(tour)
-print(tour)
-print(current_dist)
+tour, tour_length = hill_climbing(tour)
+   
+print(tour_length)
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
 ############
@@ -464,7 +460,7 @@ for i in range(1,num_cities):
     f.write("," + str(tour[i]))
 f.write(",\nNOTE = " + added_note)
 f.close()
-print("I have successfully written your tour to the tour file:\n   " + output_file_name + ".") """
+print("I have successfully written your tour to the tour file:\n   " + output_file_name + ".")"""
 
 ############ END OF SECTOR 9 (IGNORE THIS COMMENT)
     
