@@ -15,7 +15,6 @@ import os
 import sys
 import time
 import random
-import math
 
 ############ START OF SECTOR 1 (IGNORE THIS COMMENT)
 ############
@@ -290,7 +289,7 @@ my_last_name = "Henderson"
 ############
 ############ END OF SECTOR 7 (IGNORE THIS COMMENT)
 
-algorithm_code = "PS"
+algorithm_code = ""
 
 ############ START OF SECTOR 8 (IGNORE THIS COMMENT)
 ############
