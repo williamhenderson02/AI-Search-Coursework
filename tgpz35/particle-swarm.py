@@ -388,28 +388,30 @@ def pso(max_it, N, delta):
 
     def get_metric_distance(particle_a, particle_b):
         
-        num_of_swaps = 0
+        swaps = 0
         linear_order = particle_b.copy()
         sorting = particle_a.copy()
 
-        print("particle_a",particle_a)
-        print("linear_order", linear_order)
+        is_sorted = False
 
-        for i in range(1, len(particle_a) - 1):
-            num_1 = sorting[i]
-            num_2 = sorting[i+1]
+        while not is_sorted:
 
-            index_1 = linear_order.index(num_1)
-            index_2 = linear_order.index(num_2)
+            is_sorted = True
 
-            if index_1 > index_2:
-                sorting[i] = num_2
-                sorting[i+1] = num_1
+            for i in range(1, len(particle_a) - 1):
+                num_1 = sorting[i]
+                num_2 = sorting[i+1]
 
-        print("sorting",sorting)
-        print()
+                index_1 = linear_order.index(num_1)
+                index_2 = linear_order.index(num_2)
 
-        return
+                if index_1 > index_2:
+                    swaps += 1
+                    sorting[i] = num_2
+                    sorting[i+1] = num_1
+                    is_sorted = False
+
+        return swaps
 
     def get_neighbourhood(particles,particle):
 
@@ -420,7 +422,6 @@ def pso(max_it, N, delta):
             get_metric_distance(particle, neighbour)
 
         return potential_neighbours
-
 
     particles = initialise_positions(N)
     p_hats = particles.copy()
