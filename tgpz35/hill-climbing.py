@@ -328,18 +328,18 @@ added_note = ""
 #print(dist_matrix)
 
 tour = []
-unvisted_cities = []
+unvisited_cities = []
 
 # create initial tour
 def random_tour():
     tour = []
     for i in range(num_cities):
-        unvisted_cities.append(i)
+        unvisited_cities.append(i)
 
     for i in range(num_cities):
-        city = random.choice(unvisted_cities)
+        city = random.choice(unvisited_cities)
         tour.append(city)
-        unvisted_cities.remove(city)
+        unvisited_cities.remove(city)
     
     return tour 
 

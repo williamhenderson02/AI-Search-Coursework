@@ -325,23 +325,62 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
+def pso(max_it, N, delta):
+
+    def initialise_positions(N):
+
+        particles = []
+
+        start_city = random.randint(0, num_cities - 1)
+
+        for i in range(N):
+            tour = [start_city]
+            unvisited_cities = [j for j in range(num_cities) if j != start_city]
+
+            for j in range(num_cities-1):
+                city = random.choice(unvisited_cities)
+                tour.append(city)
+                unvisited_cities.remove(city)
+
+            particles.append(tour)
+
+        return particles
+
+    def initialise_velocities(N):
+
+        velocities = []
+
+        for i in range(N):
+            velocity = []
+
+            #potentially add a max number of times a city can be swapped
+            for j in range(num_cities - 1):
+                swap_index = random.randint(1, num_cities - 1)  # choose one of the cities in the swap
+
+                #last city has 2 ways to get swapped and not just 1
+                #downside is penultimate city now has 3 ways to be swapped so more likeley to be swapped than other cities
+                #better than all cities having twice the chance as last city
+                if swap_index == num_cities - 1:
+                    swap = swap_index - 1, swap_index
+                else: 
+                    swap = swap_index, swap_index + 1  # represents the swap of two consecutive cities
+                velocity.append(swap)
 
 
+            velocities.append(velocity)
 
+        return velocities
 
+    def get_pbest():
+        return
 
+    particles = initialise_positions(N)
+    print(particles)
+    p_hats = particles.copy()
+    velocities = initialise_velocities(N)
+    print(velocities)
 
-
-
-
-
-
-
-
-
-
-
-
+pso(100,4,10000)
 
 
 
