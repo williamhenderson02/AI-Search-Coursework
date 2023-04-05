@@ -371,14 +371,24 @@ def pso(max_it, N, delta):
 
         return velocities
 
-    def get_pbest():
-        return
+    def initialise_pbest(p_hats):
+        lengths = []
+        for particle in p_hats:
+            tour_length = 0
+            for i in range(0, len(particle)):
+                tour_length += dist_matrix[particle[i-1]][particle[i]]
+
+            lengths.append(tour_length)
+
+        p_best = min(lengths)
+
+        return p_best
 
     particles = initialise_positions(N)
-    print(particles)
     p_hats = particles.copy()
     velocities = initialise_velocities(N)
-    print(velocities)
+    initialise_pbest(p_hats)
+
 
 pso(100,4,10000)
 
