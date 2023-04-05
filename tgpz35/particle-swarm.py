@@ -334,10 +334,12 @@ def pso(max_it, N, delta):
         start_city = random.randint(0, num_cities - 1)
 
         for i in range(N):
+
             tour = [start_city]
             unvisited_cities = [j for j in range(num_cities) if j != start_city]
 
             for j in range(num_cities-1):
+
                 city = random.choice(unvisited_cities)
                 tour.append(city)
                 unvisited_cities.remove(city)
@@ -351,6 +353,7 @@ def pso(max_it, N, delta):
         velocities = []
 
         for i in range(N):
+
             velocity = []
 
             #potentially add a max number of times a city can be swapped
@@ -362,9 +365,13 @@ def pso(max_it, N, delta):
                 #downside is penultimate city now has 3 ways to be swapped so more likeley to be swapped than other cities
                 #better than all cities having twice the chance as last city
                 if swap_index == num_cities - 1:
+                
                     swap = swap_index - 1, swap_index
+
                 else: 
+
                     swap = swap_index, swap_index + 1  # represents the swap of two consecutive cities
+
                 velocity.append(swap)
 
 
@@ -372,19 +379,23 @@ def pso(max_it, N, delta):
 
         return velocities
 
-    def initialise_pbest(p_hats):
+    def get_min_length(tours):
 
         lengths = []
-        for particle in p_hats:
+
+        for particle in tours:
+
             tour_length = 0
+
             for i in range(0, len(particle)):
+
                 tour_length += dist_matrix[particle[i-1]][particle[i]]
 
             lengths.append(tour_length)
 
-        p_best = min(lengths)
+        best = min(lengths)
 
-        return p_best
+        return best
 
     def get_metric_distance(particle_a, particle_b):
         
@@ -399,6 +410,7 @@ def pso(max_it, N, delta):
             is_sorted = True
 
             for i in range(1, len(particle_a) - 1):
+
                 num_1 = sorting[i]
                 num_2 = sorting[i+1]
 
@@ -406,9 +418,12 @@ def pso(max_it, N, delta):
                 index_2 = linear_order.index(num_2)
 
                 if index_1 > index_2:
+
                     swaps += 1
+
                     sorting[i] = num_2
                     sorting[i+1] = num_1
+
                     is_sorted = False
 
         return swaps
@@ -417,33 +432,82 @@ def pso(max_it, N, delta):
 
         particle_index = particles.index(particle)
         potential_neighbours = [particles[i] for i in range(len(particles)) if i != particle_index]
+        neighbourhood = []
 
         for neighbour in potential_neighbours:
-            get_metric_distance(particle, neighbour)
 
-        return potential_neighbours
+            distance = get_metric_distance(particle, neighbour)
+
+            if distance <= delta:
+
+                neighbourhood.append(neighbour)
+            
+        return neighbourhood
+
+    def get_n_best(neighbourhood):
+
+        lengths = []
+
+        for particle in neighbourhood:
+
+            tour_length = 0
+
+            for i in range(0, len(particle)):
+
+                tour_length += dist_matrix[particle[i-1]][particle[i]]
+
+            lengths.append(tour_length)
+
+        p_best = min(lengths)
+
+        return get_n_best
+
+    def transform_particle_position(particle, velocitity):
+
+        particle_transformed = particle.copy()
+
+        for i in velocity:
+
+            index = i[0]
+            particle_transformed[index], particle_transformed[index + 1] = particle_transformed[index + 1], particle_transformed[index]
+
+        return particle_transformed
 
     particles = initialise_positions(N)
     p_hats = particles.copy()
     velocities = initialise_velocities(N)
-    p_best = initialise_pbest(p_hats)
+    p_best = get_min_length(p_hats)
 
     print(particles)
     print()
     print(velocities)
     print()
     print(p_best)
+    print()
 
     t = 0
 
     while t < max_it:
+
         for particle in particles:
+
+            index = particles.index(particle)
+            velocity = velocities[index]
             neighbourhood = get_neighbourhood(particles,particle)
-            #print(neighbourhood)
+
+            if len(neighbourhood) != 0:
+
+                n_best = get_min_length(neighbourhood)
+
+            else:
+
+                n_best = math.inf
+
+            next_position = transform_particle_position(particle,velocity)
 
         return
 
-pso(100,4,math.inf)
+pso(100,3,25)
 
 
 
