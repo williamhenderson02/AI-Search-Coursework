@@ -355,6 +355,7 @@ def pso(max_it, N, delta):
 
             #potentially add a max number of times a city can be swapped
             for j in range(num_cities - 1):
+                #index 1 so first city is never swapped
                 swap_index = random.randint(1, num_cities - 1)  # choose one of the cities in the swap
 
                 #last city has 2 ways to get swapped and not just 1
@@ -372,6 +373,7 @@ def pso(max_it, N, delta):
         return velocities
 
     def initialise_pbest(p_hats):
+
         lengths = []
         for particle in p_hats:
             tour_length = 0
@@ -384,13 +386,63 @@ def pso(max_it, N, delta):
 
         return p_best
 
+    def get_metric_distance(particle_a, particle_b):
+        
+        num_of_swaps = 0
+        linear_order = particle_b.copy()
+        sorting = particle_a.copy()
+
+        print("particle_a",particle_a)
+        print("linear_order", linear_order)
+
+        for i in range(1, len(particle_a) - 1):
+            num_1 = sorting[i]
+            num_2 = sorting[i+1]
+
+            index_1 = linear_order.index(num_1)
+            index_2 = linear_order.index(num_2)
+
+            if index_1 > index_2:
+                sorting[i] = num_2
+                sorting[i+1] = num_1
+
+        print("sorting",sorting)
+        print()
+
+        return
+
+    def get_neighbourhood(particles,particle):
+
+        particle_index = particles.index(particle)
+        potential_neighbours = [particles[i] for i in range(len(particles)) if i != particle_index]
+
+        for neighbour in potential_neighbours:
+            get_metric_distance(particle, neighbour)
+
+        return potential_neighbours
+
+
     particles = initialise_positions(N)
     p_hats = particles.copy()
     velocities = initialise_velocities(N)
-    initialise_pbest(p_hats)
+    p_best = initialise_pbest(p_hats)
 
+    print(particles)
+    print()
+    print(velocities)
+    print()
+    print(p_best)
 
-pso(100,4,10000)
+    t = 0
+
+    while t < max_it:
+        for particle in particles:
+            neighbourhood = get_neighbourhood(particles,particle)
+            #print(neighbourhood)
+
+        return
+
+pso(100,4,math.inf)
 
 
 
