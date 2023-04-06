@@ -493,7 +493,7 @@ def pso(max_it, N, delta):
             neighbourhood_swaps = 0
             neighbourhood_contribution = []
 
-        return
+        return particle_swaps, particle_contribution, neighbourhood_swaps, neighbourhood_contribution
 
     def inertia_function(t, w_start, w_end):
 
@@ -509,6 +509,8 @@ def pso(max_it, N, delta):
     t = 0
     w_start = 0.9
     w_end = 0.4
+    alpha = 1
+    beta = 1
 
     while t < max_it:
 
@@ -529,14 +531,25 @@ def pso(max_it, N, delta):
 
             next_position = transform_particle_position(particle,velocity)
 
-            next_velocity = compose_particle_velocity(particle, velocity, p_hat, n_best)
+            particle_swaps, particle_contribution, neighbourhood_swaps, neighbourhood_contribution = compose_particle_velocity(particle, velocity, p_hat, n_best)
 
             inertia_weight = inertia_function(t, w_start, w_end)
+
+            epsilon = random.randint(0,len(particle_contribution))
+            epsilon_prime = random.randint(0, len(neighbourhood_contribution))
+
+            if particle_swaps != 0:
+
+                particle_contribution.pop(epsilon)
+            
+            if neighbourhood_swaps != 0:
+
+                neighbourhood_contribution.pop(epsilon_prime)
 
         return
         t += 1
 
-pso(100,10,25)
+pso(100,10,50)
 
 
 
