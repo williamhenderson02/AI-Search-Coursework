@@ -397,7 +397,6 @@ def pso(max_it, N, delta):
                 best_length = tour_length
                 best_tour = particle
         
-
         return best_tour
 
     def get_metric_distance(particle_a, particle_b):
@@ -466,7 +465,7 @@ def pso(max_it, N, delta):
 
             lengths.append(tour_length)
 
-        p_best = min(lengths)
+        n_best = min(lengths)
 
         return get_n_best
 
@@ -503,8 +502,6 @@ def pso(max_it, N, delta):
         return w
 
     def multiply_velocity(weight, velocity):
-
-        #print(velocity)
 
         length = len(velocity)
 
@@ -546,6 +543,24 @@ def pso(max_it, N, delta):
 
             return velocity
 
+    def calc_next_velocity(inertia, cognitive_factor, social_factor):
+
+        next_velocity = []
+
+        if len(inertia) != 0:
+
+            next_velocity.append(inertia)
+
+        if len(cognitive_factor) != 0:
+
+            next_velocity.append(cognitive_factor)
+
+        if len(social_factor) != 0:
+
+            next_velocity.append(social_factor)
+
+        return next_velocity
+
     particles = initialise_positions(N)
     p_hats = particles.copy()
     velocities = initialise_velocities(N)
@@ -558,6 +573,9 @@ def pso(max_it, N, delta):
     beta = 1
 
     while t < max_it:
+        print(t)
+
+        possible_bests = [p_best]
 
         for particle in particles:
 
@@ -610,10 +628,25 @@ def pso(max_it, N, delta):
 
             social_factor = multiply_velocity(beta, neighbourhood_contribution)
         
-        
+            next_velocity = calc_next_velocity(inertia, cognitive_factor, social_factor)
 
-        return
+            compare_tours = []
+            compare_tours.append(next_position)
+            compare_tours.append(p_hat)
+
+            next_p_hat = get_min_tour(compare_tours)
+            possible_bests.append(next_p_hat)
+
+            particles[index] = next_position
+            velocities[index] = next_velocity
+            p_hats[index] = next_p_hat
+
+        p_best = get_min_tour(possible_bests)
+        print(p_best)
+
         t += 1
+
+    return p_best
 
 pso(100,10,50)
 
