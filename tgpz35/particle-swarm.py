@@ -526,7 +526,11 @@ def pso(max_it, N, delta):
 
             for i in range(1,integer_part):
 
-                velocity.append(integer_velocity)
+                if len(integer_velocity) != 0:
+
+                    for j in range(len(integer_velocity)):
+
+                        velocity.append(integer_velocity[j])
 
             if decimal_part != 0:
 
@@ -539,7 +543,9 @@ def pso(max_it, N, delta):
 
             if decimal_velocity != None:
 
-                velocity.append(decimal_velocity)
+                for i in range(len(decimal_velocity)):
+
+                    velocity.append(decimal_velocity[i])
 
             return velocity
 
@@ -549,15 +555,21 @@ def pso(max_it, N, delta):
 
         if len(inertia) != 0:
 
-            next_velocity.append(inertia)
+            for i in range(len(inertia)):
+
+                next_velocity.append(inertia[i])
 
         if len(cognitive_factor) != 0:
 
-            next_velocity.append(cognitive_factor)
+            for i in range(len(cognitive_factor)):
+
+                next_velocity.append(cognitive_factor[i])
 
         if len(social_factor) != 0:
 
-            next_velocity.append(social_factor)
+            for i in range(len(social_factor)):
+
+                next_velocity.append(social_factor[i])
 
         return next_velocity
 
@@ -566,14 +578,22 @@ def pso(max_it, N, delta):
     velocities = initialise_velocities(N)
     p_best = get_min_tour(p_hats)
 
+    tour_length = 0
+    
+    for i in range(0, len(p_best)):
+
+        tour_length += dist_matrix[p_best[i-1]][p_best[i]]
+
+    print("start length", tour_length)
+
     t = 0
     w_start = 0.9
     w_end = 0.4
-    alpha = 1
-    beta = 1
+    alpha = 0.75
+    beta = 2.75
 
     while t < max_it:
-        print(t)
+        #print("t", t)
 
         possible_bests = [p_best]
 
@@ -642,13 +662,20 @@ def pso(max_it, N, delta):
             p_hats[index] = next_p_hat
 
         p_best = get_min_tour(possible_bests)
-        print(p_best)
 
         t += 1
 
+    tour_length = 0
+    
+    for i in range(0, len(p_best)):
+
+        tour_length += dist_matrix[p_best[i-1]][p_best[i]]
+
+    print("end length", tour_length)
+
     return p_best
 
-pso(100,10,50)
+pso(1000,10,20)
 
 
 
