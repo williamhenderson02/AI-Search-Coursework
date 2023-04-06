@@ -379,9 +379,10 @@ def pso(max_it, N, delta):
 
         return velocities
 
-    def get_min_length(tours):
+    def get_min_tour(tours):
 
-        lengths = []
+        best_length = math.inf
+        best_tour = []
 
         for particle in tours:
 
@@ -391,17 +392,20 @@ def pso(max_it, N, delta):
 
                 tour_length += dist_matrix[particle[i-1]][particle[i]]
 
-            lengths.append(tour_length)
+            if tour_length < best_length:
+                best_length = tour_length
+                best_tour = particle
+        
 
-        best = min(lengths)
-
-        return best
+        return best_tour
 
     def get_metric_distance(particle_a, particle_b):
         
         swaps = 0
+        swap_tuple = ()
         linear_order = particle_b.copy()
         sorting = particle_a.copy()
+        velocity  = []
 
         is_sorted = False
 
@@ -421,12 +425,15 @@ def pso(max_it, N, delta):
 
                     swaps += 1
 
+                    swap_tuple = i, i + 1
+                    velocity.append(swap_tuple)
+
                     sorting[i] = num_2
                     sorting[i+1] = num_1
 
                     is_sorted = False
 
-        return swaps
+        return swaps, velocity
 
     def get_neighbourhood(particles,particle):
 
@@ -436,7 +443,7 @@ def pso(max_it, N, delta):
 
         for neighbour in potential_neighbours:
 
-            distance = get_metric_distance(particle, neighbour)
+            distance, velocity = get_metric_distance(particle, neighbour)
 
             if distance <= delta:
 
@@ -473,19 +480,35 @@ def pso(max_it, N, delta):
 
         return particle_transformed
 
+    def compose_particle_velocity(particle, velocity, p_hat, n_best):
+
+        particle_swaps, particle_contribution = get_metric_distance(particle, p_hat)
+
+        if n_best != math.inf:
+
+            neighbourhood_swaps, neighbourhood_contribution = get_metric_distance(particle, n_best)
+
+        else:
+
+            neighbourhood_swaps = 0
+            neighbourhood_contribution = []
+
+        return
+
+    def inertia_function(t, w_start, w_end):
+
+        w = w_start - ((w_start - w_end) * t) / max_it
+
+        return w
+
     particles = initialise_positions(N)
     p_hats = particles.copy()
     velocities = initialise_velocities(N)
-    p_best = get_min_length(p_hats)
-
-    print(particles)
-    print()
-    print(velocities)
-    print()
-    print(p_best)
-    print()
+    p_best = get_min_tour(p_hats)
 
     t = 0
+    w_start = 0.9
+    w_end = 0.4
 
     while t < max_it:
 
@@ -494,10 +517,11 @@ def pso(max_it, N, delta):
             index = particles.index(particle)
             velocity = velocities[index]
             neighbourhood = get_neighbourhood(particles,particle)
+            p_hat = p_hats[index]
 
             if len(neighbourhood) != 0:
 
-                n_best = get_min_length(neighbourhood)
+                n_best = get_min_tour(neighbourhood)
 
             else:
 
@@ -505,9 +529,14 @@ def pso(max_it, N, delta):
 
             next_position = transform_particle_position(particle,velocity)
 
-        return
+            next_velocity = compose_particle_velocity(particle, velocity, p_hat, n_best)
 
-pso(100,3,25)
+            inertia_weight = inertia_function(t, w_start, w_end)
+
+        return
+        t += 1
+
+pso(100,10,25)
 
 
 
