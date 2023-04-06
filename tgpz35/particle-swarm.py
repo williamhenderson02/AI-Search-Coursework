@@ -16,6 +16,7 @@ import sys
 import time
 import random
 import math
+import decimal
 
 ############ START OF SECTOR 1 (IGNORE THIS COMMENT)
 ############
@@ -501,6 +502,50 @@ def pso(max_it, N, delta):
 
         return w
 
+    def multiply_velocity(weight, velocity):
+
+        #print(velocity)
+
+        length = len(velocity)
+
+        if weight == 1:
+
+            return velocity
+
+        elif weight < 1:
+
+            nums_to_take = int((length) * (weight))
+            velocity = velocity[0:nums_to_take]
+
+            return velocity
+
+        else:
+
+            decimal_weight = decimal.Decimal(str(weight))
+            integer_part = int(decimal_weight)
+            decimal_part = float(decimal_weight - integer_part)
+            decimal_velocity = velocity.copy()
+            integer_velocity = velocity.copy()
+
+            for i in range(1,integer_part):
+
+                velocity.append(integer_velocity)
+
+            if decimal_part != 0:
+
+                nums_to_take = int((length) * (decimal_part))
+                decimal_velocity = decimal_velocity[0:nums_to_take]
+
+            else:
+
+                decimal_velocity = None
+
+            if decimal_velocity != None:
+
+                velocity.append(decimal_velocity)
+
+            return velocity
+
     particles = initialise_positions(N)
     p_hats = particles.copy()
     velocities = initialise_velocities(N)
@@ -535,8 +580,21 @@ def pso(max_it, N, delta):
 
             inertia_weight = inertia_function(t, w_start, w_end)
 
-            epsilon = random.randint(0,len(particle_contribution))
-            epsilon_prime = random.randint(0, len(neighbourhood_contribution))
+            if len(particle_contribution) != 0:
+                
+                epsilon = random.randint(0,len(particle_contribution) - 1)
+
+            else:
+
+                epsilon = 0
+
+            if len(neighbourhood_contribution) != 0:
+
+                epsilon_prime = random.randint(0, len(neighbourhood_contribution) - 1)
+
+            else:
+
+                epsilon_prime = 0
 
             if particle_swaps != 0:
 
@@ -545,6 +603,14 @@ def pso(max_it, N, delta):
             if neighbourhood_swaps != 0:
 
                 neighbourhood_contribution.pop(epsilon_prime)
+
+            inertia = multiply_velocity(inertia_weight, velocity)
+
+            cognitive_factor = multiply_velocity(alpha, particle_contribution)
+
+            social_factor = multiply_velocity(beta, neighbourhood_contribution)
+        
+        
 
         return
         t += 1
