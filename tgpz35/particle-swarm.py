@@ -407,31 +407,18 @@ def pso(max_it, N, delta):
         sorting = particle_a.copy()
         velocity  = []
 
-        is_sorted = False
+        for i in range(1, len(particle_a) - 1):
 
-        while not is_sorted:
+            while sorting[i] != linear_order[i]:
 
-            is_sorted = True
+                index = sorting.index(linear_order[i])
 
-            for i in range(1, len(particle_a) - 1):
+                sorting[i], sorting[index] = sorting[index], sorting[i] 
 
-                num_1 = sorting[i]
-                num_2 = sorting[i+1]
+                swaps += 1
 
-                index_1 = linear_order.index(num_1)
-                index_2 = linear_order.index(num_2)
-
-                if index_1 > index_2:
-
-                    swaps += 1
-
-                    swap_tuple = i, i + 1
-                    velocity.append(swap_tuple)
-
-                    sorting[i] = num_2
-                    sorting[i+1] = num_1
-
-                    is_sorted = False
+                swap_tuple = i, i + 1
+                velocity.append(swap_tuple)
 
         return swaps, velocity
 
@@ -440,6 +427,10 @@ def pso(max_it, N, delta):
         particle_index = particles.index(particle)
         potential_neighbours = [particles[i] for i in range(len(particles)) if i != particle_index]
         neighbourhood = []
+
+        if delta == math.inf:
+
+            return potential_neighbours
 
         for neighbour in potential_neighbours:
 
@@ -573,27 +564,36 @@ def pso(max_it, N, delta):
 
         return next_velocity
 
+    def get_epsilon():
+        
+        omega = 2
+        phi = 1
+
+        x = random.random()
+        y = random.random()
+        epsilon = math.pow(x, omega) * math.pow(1-y, phi)
+    
+        return epsilon
+
     particles = initialise_positions(N)
     p_hats = particles.copy()
     velocities = initialise_velocities(N)
     p_best = get_min_tour(p_hats)
 
-    tour_length = 0
+    start_length = 0
     
     for i in range(0, len(p_best)):
 
-        tour_length += dist_matrix[p_best[i-1]][p_best[i]]
-
-    print("start length", tour_length)
+        start_length += dist_matrix[p_best[i-1]][p_best[i]]
 
     t = 0
     w_start = 0.9
     w_end = 0.4
-    alpha = 0.75
-    beta = 2.75
+    alpha = 0.5
+    beta = 2.5
 
     while t < max_it:
-        #print("t", t)
+        print("t", t)
 
         possible_bests = [p_best]
 
@@ -618,30 +618,26 @@ def pso(max_it, N, delta):
 
             inertia_weight = inertia_function(t, w_start, w_end)
 
-            if len(particle_contribution) != 0:
+            if len(particle_contribution) != 0 and particle_swaps != 0:
                 
-                epsilon = random.randint(0,len(particle_contribution) - 1)
+                epsilon = get_epsilon()
+
+                particle_contribution = multiply_velocity(epsilon, particle_contribution)
 
             else:
 
                 epsilon = 0
 
-            if len(neighbourhood_contribution) != 0:
+            if len(neighbourhood_contribution) != 0 and neighbourhood_swaps != 0:
 
-                epsilon_prime = random.randint(0, len(neighbourhood_contribution) - 1)
+                epsilon_prime = get_epsilon()
+
+                neighbourhood_contribution = multiply_velocity(epsilon, neighbourhood_contribution)
 
             else:
 
                 epsilon_prime = 0
-
-            if particle_swaps != 0:
-
-                particle_contribution.pop(epsilon)
-            
-            if neighbourhood_swaps != 0:
-
-                neighbourhood_contribution.pop(epsilon_prime)
-
+                
             inertia = multiply_velocity(inertia_weight, velocity)
 
             cognitive_factor = multiply_velocity(alpha, particle_contribution)
@@ -661,21 +657,25 @@ def pso(max_it, N, delta):
             velocities[index] = next_velocity
             p_hats[index] = next_p_hat
 
+            #print(next_velocity)
+            #print()
+
         p_best = get_min_tour(possible_bests)
 
         t += 1
 
-    tour_length = 0
+    end_length = 0
     
     for i in range(0, len(p_best)):
 
-        tour_length += dist_matrix[p_best[i-1]][p_best[i]]
+        end_length += dist_matrix[p_best[i-1]][p_best[i]]
 
-    print("end length", tour_length)
+    print("start length", start_length)
+    print("end length", end_length)
 
     return p_best
 
-pso(1000,10,20)
+pso(1000,50,math.inf)
 
 
 
