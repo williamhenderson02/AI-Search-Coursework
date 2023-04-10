@@ -566,7 +566,7 @@ def pso(max_it, N, delta):
 
     def get_epsilon():
         
-        omega = 2
+        omega = 3
         phi = 1
 
         x = random.random()
@@ -574,6 +574,22 @@ def pso(max_it, N, delta):
         epsilon = math.pow(x, omega) * math.pow(1-y, phi)
     
         return epsilon
+
+    def add_epsilon(epsilon, velocity):
+
+        length = len(velocity)
+
+        swaps_to_add = int((length) * (epsilon))
+
+        for i in range(swaps_to_add):
+            
+            random_tuple = ()
+            num = random.randint(1, length - 1)
+            random_tuple = num, num + 1
+            
+            velocity.append(random_tuple)
+
+        return velocity
 
     particles = initialise_positions(N)
     p_hats = particles.copy()
@@ -622,7 +638,7 @@ def pso(max_it, N, delta):
                 
                 epsilon = get_epsilon()
 
-                particle_contribution = multiply_velocity(epsilon, particle_contribution)
+                particle_contribution = add_epsilon(epsilon, particle_contribution)
 
             else:
 
@@ -632,7 +648,7 @@ def pso(max_it, N, delta):
 
                 epsilon_prime = get_epsilon()
 
-                neighbourhood_contribution = multiply_velocity(epsilon, neighbourhood_contribution)
+                neighbourhood_contribution = add_epsilon(epsilon, neighbourhood_contribution)
 
             else:
 
@@ -673,9 +689,9 @@ def pso(max_it, N, delta):
     print("start length", start_length)
     print("end length", end_length)
 
-    return p_best
+    return p_best, end_length
 
-pso(1000,50,math.inf)
+tour, tour_length = pso(1000,500,math.inf)
 
 
 
@@ -695,7 +711,7 @@ pso(1000,50,math.inf)
 ############ DO NOT TOUCH OR ALTER THE CODE BELOW THIS POINT! YOU HAVE BEEN WARNED!
 ############
 
-"""flag = "good"
+flag = "good"
 length = len(tour)
 for i in range(0, length):
     if isinstance(tour[i], int) == False:
@@ -745,7 +761,7 @@ for i in range(1,num_cities):
     f.write("," + str(tour[i]))
 f.write(",\nNOTE = " + added_note)
 f.close()
-print("I have successfully written your tour to the tour file:\n   " + output_file_name + ".")"""
+print("I have successfully written your tour to the tour file:\n   " + output_file_name + ".")
 
 ############ END OF SECTOR 9 (IGNORE THIS COMMENT)
     
