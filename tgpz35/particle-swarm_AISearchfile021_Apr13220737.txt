@@ -1,0 +1,5 @@
+USER = tgp35 (William Henderson),
+ALGORITHM CODE = PS, NAME OF CITY-FILE = AISearchfile021.txt,
+SIZE = 21, TOUR LENGTH = 3931,
+9,18,10,7,16,5,13,1,20,15,11,3,6,2,12,19,17,4,0,14,8,
+NOTE = Particles 70
