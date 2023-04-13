@@ -158,7 +158,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile017.txt"
+input_file = "AISearchfile535.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############

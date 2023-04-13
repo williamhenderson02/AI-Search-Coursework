@@ -375,7 +375,6 @@ def pso(max_it, N, delta):
 
                 velocity.append(swap)
 
-
             velocities.append(velocity)
 
         return velocities
@@ -458,7 +457,7 @@ def pso(max_it, N, delta):
 
         n_best = min(lengths)
 
-        return get_n_best
+        return n_best
 
     def transform_particle_position(particle, velocitity):
 
@@ -566,16 +565,14 @@ def pso(max_it, N, delta):
 
     def get_epsilon():
         
-        omega = 3
-        phi = 1
+        omega = 10
+        phi = 2
 
-        x = random.random()
-        y = random.random()
-        epsilon = math.pow(x, omega) * math.pow(1-y, phi)
+        epsilon = random.betavariate(omega, phi)
     
         return epsilon
 
-    def add_epsilon(epsilon, velocity):
+    def apply_epsilon(epsilon, velocity):
 
         length = len(velocity)
 
@@ -605,11 +602,11 @@ def pso(max_it, N, delta):
     t = 0
     w_start = 0.9
     w_end = 0.4
-    alpha = 0.5
-    beta = 2.5
+    alpha = 0.3
+    beta = 0.5
 
     while t < max_it:
-        print("t", t)
+        #print("t -------------------------------------", t)
 
         possible_bests = [p_best]
 
@@ -638,7 +635,7 @@ def pso(max_it, N, delta):
                 
                 epsilon = get_epsilon()
 
-                particle_contribution = add_epsilon(epsilon, particle_contribution)
+                particle_contribution = multiply_velocity(epsilon, particle_contribution)
 
             else:
 
@@ -648,7 +645,7 @@ def pso(max_it, N, delta):
 
                 epsilon_prime = get_epsilon()
 
-                neighbourhood_contribution = add_epsilon(epsilon, neighbourhood_contribution)
+                neighbourhood_contribution = multiply_velocity(epsilon, neighbourhood_contribution)
 
             else:
 
@@ -674,8 +671,10 @@ def pso(max_it, N, delta):
             p_hats[index] = next_p_hat
 
             #print(next_velocity)
+            #print(len(next_velocity))
             #print()
 
+        #print()
         p_best = get_min_tour(possible_bests)
 
         t += 1
@@ -691,7 +690,7 @@ def pso(max_it, N, delta):
 
     return p_best, end_length
 
-tour, tour_length = pso(1000,500,math.inf)
+tour, tour_length = pso(100,500,math.inf)
 
 
 
