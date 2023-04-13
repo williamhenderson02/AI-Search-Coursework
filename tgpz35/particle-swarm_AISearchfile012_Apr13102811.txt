@@ -1,5 +1,0 @@
-USER = tgp35 (William Henderson),
-ALGORITHM CODE = PS, NAME OF CITY-FILE = AISearchfile012.txt,
-SIZE = 12, TOUR LENGTH = 61,
-4,8,3,0,9,10,1,2,7,11,5,6,
-NOTE = 

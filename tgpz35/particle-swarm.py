@@ -160,7 +160,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile017.txt"
+input_file = "AISearchfile021.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -321,7 +321,7 @@ print("   your algorithm code is legal and is " + algorithm_code + " -" + code_d
 ############
 ############ END OF SECTOR 8 (IGNORE THIS COMMENT)
 
-added_note = ""
+added_note = "Particles 70"
 
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
@@ -605,8 +605,8 @@ def pso(max_it, N, delta):
     t = 0
     w_start = 0.9
     w_end = 0.4
-    alpha = 0.3
-    beta = 0.5
+    alpha = 0.9
+    beta = 0.9
 
     while t < max_it:
 
@@ -693,7 +693,7 @@ def pso(max_it, N, delta):
 
     return p_best, end_length
 
-tour, tour_length = pso(100000,80,math.inf)
+tour, tour_length = pso(100000,70,math.inf)
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
 ############
