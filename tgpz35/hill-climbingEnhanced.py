@@ -158,7 +158,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile012.txt"
+input_file = "AISearchfile042.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -290,7 +290,7 @@ my_last_name = "Henderson"
 ############
 ############ END OF SECTOR 7 (IGNORE THIS COMMENT)
 
-algorithm_code = "DE"
+algorithm_code = "HC"
 
 ############ START OF SECTOR 8 (IGNORE THIS COMMENT)
 ############
@@ -325,25 +325,87 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
+#print(dist_matrix)
 
+tour = []
+unvisited_cities = []
 
+# create initial tour
+def random_tour():
+    tour = []
+    for i in range(num_cities):
+        unvisited_cities.append(i)
 
+    for i in range(num_cities):
+        city = random.choice(unvisited_cities)
+        tour.append(city)
+        unvisited_cities.remove(city)
+    
+    return tour 
 
+#calculate length of tour
+def calc_tour_length(tour):
+    tour_length = 0
+    for i in range(0, len(tour)):
+        tour_length += dist_matrix[tour[i-1]][tour[i]]
 
+    return tour_length
 
+def get_sucessors(tour):
+    successors = []
+    sum = 0
+    for i in range(0,len(tour) - 1):
+        for j in range(i+1,len(tour)):
+            if i != j:
+                successor = tour.copy()
+                temp = successor[i]
+                successor[i] = successor[j]
+                successor[j] = temp
+                successors.append(successor)
 
+    return successors
 
+def get_best_successor(successors):
+    best_successor_length = 100000000
+    best_successor = []
+    for successor in successors:
+        length = calc_tour_length(successor)
+        if length < best_successor_length:
+            best_successor_length = length
+            best_successor = successor
 
+    return best_successor_length, best_successor
 
+def hill_climbing(tour):
+    for i in range(0,1000):
+        #print(i)
+        successors = get_sucessors(tour)
+        best_successor_length, best_successor = get_best_successor(successors)
+        current_dist = calc_tour_length(tour)
 
+        if best_successor_length >= current_dist:
+            return tour, current_dist
+        else:
+            tour = best_successor
+    return tour, current_dist
 
+best_length = 1000000
 
+for i in range(0,1000):
 
+    print(i)
 
+    tour = random_tour()
+    tour, tour_length = hill_climbing(tour)
 
+    if tour_length < best_length:
+        best_tour = tour
+        best_length = tour_length
 
-
-
+tour_length = best_length
+tour = best_tour
+   
+print(tour_length)
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
 ############
@@ -361,7 +423,7 @@ added_note = ""
 ############ DO NOT TOUCH OR ALTER THE CODE BELOW THIS POINT! YOU HAVE BEEN WARNED!
 ############
 
-"""flag = "good"
+flag = "good"
 length = len(tour)
 for i in range(0, length):
     if isinstance(tour[i], int) == False:
@@ -411,7 +473,7 @@ for i in range(1,num_cities):
     f.write("," + str(tour[i]))
 f.write(",\nNOTE = " + added_note)
 f.close()
-print("I have successfully written your tour to the tour file:\n   " + output_file_name + ".")"""
+print("I have successfully written your tour to the tour file:\n   " + output_file_name + ".")
 
 ############ END OF SECTOR 9 (IGNORE THIS COMMENT)
     

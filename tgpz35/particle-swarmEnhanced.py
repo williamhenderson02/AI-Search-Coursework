@@ -16,6 +16,8 @@ import sys
 import time
 import random
 import math
+import decimal
+import multiprocessing
 
 ############ START OF SECTOR 1 (IGNORE THIS COMMENT)
 ############
@@ -158,7 +160,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile042.txt"
+input_file = "AISearchfile021.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -290,7 +292,7 @@ my_last_name = "Henderson"
 ############
 ############ END OF SECTOR 7 (IGNORE THIS COMMENT)
 
-algorithm_code = "HC"
+algorithm_code = "PS"
 
 ############ START OF SECTOR 8 (IGNORE THIS COMMENT)
 ############
@@ -319,93 +321,379 @@ print("   your algorithm code is legal and is " + algorithm_code + " -" + code_d
 ############
 ############ END OF SECTOR 8 (IGNORE THIS COMMENT)
 
-added_note = ""
+added_note = "Particles 90"
 
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
-#print(dist_matrix)
+def pso(max_it, N, delta):
 
-tour = []
-unvisited_cities = []
+    start_time = time.time()
 
-# create initial tour
-def random_tour():
-    tour = []
-    for i in range(num_cities):
-        unvisited_cities.append(i)
+    def initialise_positions(N):
 
-    for i in range(num_cities):
-        city = random.choice(unvisited_cities)
-        tour.append(city)
-        unvisited_cities.remove(city)
-    
-    return tour 
+        particles = []
 
-#calculate length of tour
-def calc_tour_length(tour):
-    tour_length = 0
-    for i in range(0, len(tour)):
-        tour_length += dist_matrix[tour[i-1]][tour[i]]
+        start_city = random.randint(0, num_cities - 1)
 
-    return tour_length
+        for i in range(N):
 
-def get_sucessors(tour):
-    successors = []
-    sum = 0
-    for i in range(0,len(tour) - 1):
-        for j in range(i+1,len(tour)):
-            if i != j:
-                successor = tour.copy()
-                temp = successor[i]
-                successor[i] = successor[j]
-                successor[j] = temp
-                successors.append(successor)
+            tour = [start_city]
+            unvisited_cities = [j for j in range(num_cities) if j != start_city]
 
-    return successors
+            for j in range(num_cities-1):
 
-def get_best_successor(successors):
-    best_successor_length = 100000000
-    best_successor = []
-    for successor in successors:
-        length = calc_tour_length(successor)
-        if length < best_successor_length:
-            best_successor_length = length
-            best_successor = successor
+                city = random.choice(unvisited_cities)
+                tour.append(city)
+                unvisited_cities.remove(city)
 
-    return best_successor_length, best_successor
+            particles.append(tour)
 
-def hill_climbing(tour):
-    for i in range(0,1000):
-        #print(i)
-        successors = get_sucessors(tour)
-        best_successor_length, best_successor = get_best_successor(successors)
-        current_dist = calc_tour_length(tour)
+        return particles
 
-        if best_successor_length >= current_dist:
-            return tour, current_dist
+    def initialise_velocities(N):
+
+        velocities = []
+
+        for i in range(N):
+
+            velocity = []
+
+            #potentially add a max number of times a city can be swapped
+            for j in range(num_cities - 1):
+                #index 1 so first city is never swapped
+                swap_index = random.randint(1, num_cities - 1)  # choose one of the cities in the swap
+
+                #last city has 2 ways to get swapped and not just 1
+                #downside is penultimate city now has 3 ways to be swapped so more likeley to be swapped than other cities
+                #better than all cities having twice the chance as last city
+                if swap_index == num_cities - 1:
+                
+                    swap = swap_index - 1, swap_index
+
+                else: 
+
+                    swap = swap_index, swap_index + 1  # represents the swap of two consecutive cities
+
+                velocity.append(swap)
+
+            velocities.append(velocity)
+
+        return velocities
+
+    def get_min_tour(tours):
+
+        best_length = math.inf
+        best_tour = []
+
+        for particle in tours:
+
+            tour_length = 0
+
+            for i in range(0, len(particle)):
+
+                tour_length += dist_matrix[particle[i-1]][particle[i]]
+
+            if tour_length < best_length:
+                best_length = tour_length
+                best_tour = particle
+        
+        return best_tour
+
+    def get_metric_distance(particle_a, particle_b):
+        
+        swaps = 0
+        swap_tuple = ()
+        linear_order = particle_b.copy()
+        sorting = particle_a.copy()
+        velocity  = []
+
+        for i in range(1, len(particle_a) - 1):
+
+            while sorting[i] != linear_order[i]:
+
+                index = sorting.index(linear_order[i])
+
+                sorting[i], sorting[index] = sorting[index], sorting[i] 
+
+                swaps += 1
+
+                swap_tuple = i, i + 1
+                velocity.append(swap_tuple)
+
+        return swaps, velocity
+
+    def get_neighbourhood(particles,particle):
+
+        particle_index = particles.index(particle)
+        potential_neighbours = [particles[i] for i in range(len(particles)) if i != particle_index]
+        neighbourhood = []
+
+        if delta == math.inf:
+
+            return potential_neighbours
+
+        for neighbour in potential_neighbours:
+
+            distance, velocity = get_metric_distance(particle, neighbour)
+
+            if distance <= delta:
+
+                neighbourhood.append(neighbour)
+            
+        return neighbourhood
+
+    def get_n_best(neighbourhood):
+
+        lengths = []
+
+        for particle in neighbourhood:
+
+            tour_length = 0
+
+            for i in range(0, len(particle)):
+
+                tour_length += dist_matrix[particle[i-1]][particle[i]]
+
+            lengths.append(tour_length)
+
+        n_best = min(lengths)
+
+        return n_best
+
+    def transform_particle_position(particle, velocitity):
+
+        particle_transformed = particle.copy()
+
+        for i in velocity:
+
+            index = i[0]
+            particle_transformed[index], particle_transformed[index + 1] = particle_transformed[index + 1], particle_transformed[index]
+
+        return particle_transformed
+
+    def compose_particle_velocity(particle, velocity, p_hat, n_best):
+
+        particle_swaps, particle_contribution = get_metric_distance(particle, p_hat)
+
+        if n_best != math.inf:
+
+            neighbourhood_swaps, neighbourhood_contribution = get_metric_distance(particle, n_best)
+
         else:
-            tour = best_successor
-    return tour, current_dist
 
-best_length = 1000000
+            neighbourhood_swaps = 0
+            neighbourhood_contribution = []
 
-for i in range(0,1000):
+        return particle_swaps, particle_contribution, neighbourhood_swaps, neighbourhood_contribution
 
-    print(i)
+    def inertia_function(t, w_start, w_end):
 
-    tour = random_tour()
-    tour, tour_length = hill_climbing(tour)
+        w = w_start - ((w_start - w_end) * t) / max_it
 
-    if tour_length < best_length:
-        best_tour = tour
-        best_length = tour_length
+        return w
 
-tour_length = best_length
-tour = best_tour
-   
-print(tour_length)
+    def multiply_velocity(weight, velocity):
+
+        length = len(velocity)
+
+        if weight == 1:
+
+            return velocity
+
+        elif weight < 1:
+
+            nums_to_take = int((length) * (weight))
+            velocity = velocity[0:nums_to_take]
+
+            return velocity
+
+        else:
+
+            decimal_weight = decimal.Decimal(str(weight))
+            integer_part = int(decimal_weight)
+            decimal_part = float(decimal_weight - integer_part)
+            decimal_velocity = velocity.copy()
+            integer_velocity = velocity.copy()
+
+            for i in range(1,integer_part):
+
+                if len(integer_velocity) != 0:
+
+                    for j in range(len(integer_velocity)):
+
+                        velocity.append(integer_velocity[j])
+
+            if decimal_part != 0:
+
+                nums_to_take = int((length) * (decimal_part))
+                decimal_velocity = decimal_velocity[0:nums_to_take]
+
+            else:
+
+                decimal_velocity = None
+
+            if decimal_velocity != None:
+
+                for i in range(len(decimal_velocity)):
+
+                    velocity.append(decimal_velocity[i])
+
+            return velocity
+
+    def calc_next_velocity(inertia, cognitive_factor, social_factor):
+
+        next_velocity = []
+
+        if len(inertia) != 0:
+
+            for i in range(len(inertia)):
+
+                next_velocity.append(inertia[i])
+
+        if len(cognitive_factor) != 0:
+
+            for i in range(len(cognitive_factor)):
+
+                next_velocity.append(cognitive_factor[i])
+
+        if len(social_factor) != 0:
+
+            for i in range(len(social_factor)):
+
+                next_velocity.append(social_factor[i])
+
+        return next_velocity
+
+    def get_epsilon():
+        
+        omega = 10
+        phi = 2
+
+        epsilon = random.betavariate(omega, phi)
+    
+        return epsilon
+
+    def apply_epsilon(epsilon, velocity):
+
+        length = len(velocity)
+
+        swaps_to_add = int((length) * (epsilon))
+
+        for i in range(swaps_to_add):
+            
+            random_tuple = ()
+            num = random.randint(1, length - 1)
+            random_tuple = num, num + 1
+            
+            velocity.append(random_tuple)
+
+        return velocity
+
+    particles = initialise_positions(N)
+    p_hats = particles.copy()
+    velocities = initialise_velocities(N)
+    p_best = get_min_tour(p_hats)
+
+    start_length = 0
+    
+    for i in range(0, len(p_best)):
+
+        start_length += dist_matrix[p_best[i-1]][p_best[i]]
+
+    t = 0
+    w_start = 0.9
+    w_end = 0.4
+    alpha = 0.9
+    beta = 0.9
+
+    while t < max_it:
+
+        #if time.time() - start_time > 58:
+
+            #break
+
+        print("t -------------------------------------", t)
+
+        possible_bests = [p_best]
+
+        for particle in particles:
+
+            index = particles.index(particle)
+            velocity = velocities[index]
+            neighbourhood = get_neighbourhood(particles,particle)
+            p_hat = p_hats[index]
+
+            if len(neighbourhood) != 0:
+
+                n_best = get_min_tour(neighbourhood)
+
+            else:
+
+                n_best = math.inf
+
+            next_position = transform_particle_position(particle,velocity)
+
+            particle_swaps, particle_contribution, neighbourhood_swaps, neighbourhood_contribution = compose_particle_velocity(particle, velocity, p_hat, n_best)
+
+            inertia_weight = inertia_function(t, w_start, w_end)
+
+            if len(particle_contribution) != 0 and particle_swaps != 0:
+                
+                epsilon = get_epsilon()
+
+                particle_contribution = multiply_velocity(epsilon, particle_contribution)
+
+            else:
+
+                epsilon = 0
+
+            if len(neighbourhood_contribution) != 0 and neighbourhood_swaps != 0:
+
+                epsilon_prime = get_epsilon()
+
+                neighbourhood_contribution = multiply_velocity(epsilon, neighbourhood_contribution)
+
+            else:
+
+                epsilon_prime = 0
+                
+            inertia = multiply_velocity(inertia_weight, velocity)
+
+            cognitive_factor = multiply_velocity(alpha, particle_contribution)
+
+            social_factor = multiply_velocity(beta, neighbourhood_contribution)
+        
+            next_velocity = calc_next_velocity(inertia, cognitive_factor, social_factor)
+
+            compare_tours = []
+            compare_tours.append(next_position)
+            compare_tours.append(p_hat)
+
+            next_p_hat = get_min_tour(compare_tours)
+            possible_bests.append(next_p_hat)
+
+            particles[index] = next_position
+            velocities[index] = next_velocity
+            p_hats[index] = next_p_hat
+
+        p_best = get_min_tour(possible_bests)
+
+        t += 1
+
+    end_length = 0
+    
+    for i in range(0, len(p_best)):
+
+        end_length += dist_matrix[p_best[i-1]][p_best[i]]
+
+    print("start length", start_length)
+    print("end length", end_length)
+
+    return p_best, end_length
+
+tour, tour_length = pso(100000,90,math.inf)
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
 ############

@@ -1,0 +1,5 @@
+USER = tgp35 (William Henderson),
+ALGORITHM CODE = HC, NAME OF CITY-FILE = AISearchfile021.txt,
+SIZE = 21, TOUR LENGTH = 2669,
+10,6,8,19,11,14,15,2,0,4,12,3,7,20,9,16,5,13,1,17,18,
+NOTE = 
