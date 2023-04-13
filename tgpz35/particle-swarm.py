@@ -17,6 +17,7 @@ import time
 import random
 import math
 import decimal
+import multiprocessing
 
 ############ START OF SECTOR 1 (IGNORE THIS COMMENT)
 ############
@@ -159,7 +160,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile012.txt"
+input_file = "AISearchfile017.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -327,6 +328,8 @@ added_note = ""
 ############
 
 def pso(max_it, N, delta):
+
+    start_time = time.time()
 
     def initialise_positions(N):
 
@@ -606,7 +609,12 @@ def pso(max_it, N, delta):
     beta = 0.5
 
     while t < max_it:
-        #print("t -------------------------------------", t)
+
+        #if time.time() - start_time > 58:
+
+            #break
+
+        print("t -------------------------------------", t)
 
         possible_bests = [p_best]
 
@@ -670,11 +678,6 @@ def pso(max_it, N, delta):
             velocities[index] = next_velocity
             p_hats[index] = next_p_hat
 
-            #print(next_velocity)
-            #print(len(next_velocity))
-            #print()
-
-        #print()
         p_best = get_min_tour(possible_bests)
 
         t += 1
@@ -690,9 +693,7 @@ def pso(max_it, N, delta):
 
     return p_best, end_length
 
-tour, tour_length = pso(100,500,math.inf)
-
-
+tour, tour_length = pso(100000,80,math.inf)
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
 ############
