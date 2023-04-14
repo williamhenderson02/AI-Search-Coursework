@@ -158,7 +158,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile042.txt"
+input_file = "AISearchfile048.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -325,85 +325,154 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
-#print(dist_matrix)
+start_time = time.time()
+
+#parameters used for enhancments
+max_iter = 1000
+restarts = 20000
+probability = 0.01
 
 tour = []
 unvisited_cities = []
 
-# create initial tour
+#function to create initial tour
 def random_tour():
+
     tour = []
+
+    #create a list containing all cities once
     for i in range(num_cities):
+
         unvisited_cities.append(i)
 
+    #construct tour by chosing cities in random order
     for i in range(num_cities):
+        
         city = random.choice(unvisited_cities)
         tour.append(city)
         unvisited_cities.remove(city)
     
     return tour 
 
-#calculate length of tour
+#function to calculate length of a tour
 def calc_tour_length(tour):
+
+    #length initialisation
     tour_length = 0
+
+    #for each city in a tour sum the distance to the next city using the distance matrix
     for i in range(0, len(tour)):
+
         tour_length += dist_matrix[tour[i-1]][tour[i]]
 
     return tour_length
 
+#function to get possible successor states
 def get_sucessors(tour):
+
+    #initialise successsor list
     successors = []
-    sum = 0
+
+    #loop over all pairs of cities in a tour except last
     for i in range(0,len(tour) - 1):
+
         for j in range(i+1,len(tour)):
+
             if i != j:
+                
+                #for each pair swap the cities for a new state
                 successor = tour.copy()
                 temp = successor[i]
                 successor[i] = successor[j]
                 successor[j] = temp
+
+                #add successor state to list of successor states
                 successors.append(successor)
 
     return successors
 
-def get_best_successor(successors):
-    best_successor_length = 100000000
-    best_successor = []
-    for successor in successors:
-        length = calc_tour_length(successor)
-        if length < best_successor_length:
-            best_successor_length = length
-            best_successor = successor
+#function for getting the best successor state
+def get_best_successor(successors, probability):
 
-    return best_successor_length, best_successor
+    #sort successors list by tour length
+    sorted_successors = sorted(successors, key=lambda s: calc_tour_length(s))
 
-def hill_climbing(tour):
-    for i in range(0,1000):
+    #get the best and second best succsessor
+    best_successor_length = calc_tour_length(sorted_successors[0])
+    second_best_successor_length = calc_tour_length(sorted_successors[1])
+    
+    #Generate a random number from 0-1 and compare to the proability parameter initialised at the start of program
+    #Return best successor if random number > proability, return second best if random number < probability
+    #Use a low value for probability. I have chosen 0.05. This allows a small chance for the algorithm to accept worse solutions
+    #Allows for improved exploration of search space and ability to escape local optima
+    if random.random() < probability:
+
+        return second_best_successor_length, sorted_successors[1]
+
+    else:
+
+        return best_successor_length, sorted_successors[0]
+
+#main function for hill climbing algorithm
+def hill_climbing(tour,max_iter,probability):
+
+    #Instead of looping forever such as the basic implementation loop for max number of iterations
+    #allows for ealier termination if stuck in local optima so more restarts can be done by the run_hill_climbing funciton
+    for j in range(0,max_iter):
+
+        #if time.time() - start_time > 58:
+            
+            #break
+
         #print(i)
+     
+        #get successors
         successors = get_sucessors(tour)
-        best_successor_length, best_successor = get_best_successor(successors)
+
+        #get best successor
+        best_successor_length, best_successor = get_best_successor(successors, probability)
+
+        #get distance of current tour
         current_dist = calc_tour_length(tour)
 
+        #compare length of current and best length
+        #return current tour and length if the best successor has made no improvement
         if best_successor_length >= current_dist:
+
             return tour, current_dist
+
+        #otherwise set the current tour as the best successor
         else:
+
             tour = best_successor
+
     return tour, current_dist
 
-best_length = 1000000
+#function for running the main hill climbing function
+def run_hill_climbing(tour, max_iter, restarts, probability):
 
-for i in range(0,1000):
+    best_length = math.inf
 
-    print(i)
+    #call the hill climbing function for a set number of restarts
+    #this allows more random initialisations and imrpoved exploration of search space
+    #the basic hill climbing algorithm can get stuck in local optima farily easily
+    #repeated search allows for a higher proability that a close to optimal solution will be found
+    for i in range(1, restarts):
 
-    tour = random_tour()
-    tour, tour_length = hill_climbing(tour)
+        print(i)
 
-    if tour_length < best_length:
-        best_tour = tour
-        best_length = tour_length
+        tour = random_tour()
+        tour, tour_length = hill_climbing(tour, max_iter, probability)
 
-tour_length = best_length
-tour = best_tour
+        #take the best tour length out of all tours found by hill climbing iterations
+        if tour_length < best_length:
+
+            best_length = tour_length
+            best_tour = tour
+
+    return best_tour, best_length
+
+tour, tour_length = run_hill_climbing(tour, max_iter, restarts, probability)
    
 print(tour_length)
 

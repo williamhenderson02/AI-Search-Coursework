@@ -17,7 +17,6 @@ import time
 import random
 import math
 import decimal
-import multiprocessing
 
 ############ START OF SECTOR 1 (IGNORE THIS COMMENT)
 ############
@@ -321,7 +320,7 @@ print("   your algorithm code is legal and is " + algorithm_code + " -" + code_d
 ############
 ############ END OF SECTOR 8 (IGNORE THIS COMMENT)
 
-added_note = "Particles 90"
+added_note = ""
 
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
@@ -693,7 +692,7 @@ def pso(max_it, N, delta):
 
     return p_best, end_length
 
-tour, tour_length = pso(100000,90,math.inf)
+tour, tour_length = pso(100000,70,math.inf)
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
 ############
