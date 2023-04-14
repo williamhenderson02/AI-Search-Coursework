@@ -158,7 +158,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile048.txt"
+input_file = "AISearchfile026.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -380,7 +380,7 @@ def get_sucessors(tour):
 
             if i != j:
                 
-                #for each pair swap the cities for a new state
+                #for each pair swap the cities to transition to a new state
                 successor = tour.copy()
                 temp = successor[i]
                 successor[i] = successor[j]
@@ -390,6 +390,21 @@ def get_sucessors(tour):
                 successors.append(successor)
 
     return successors
+
+#function called when random.random < probability
+#returns length of next iteration
+def get_next(successor):
+
+    #get next successors
+    next_iter_successors = get_sucessors(successor)
+
+    #get next best successor
+    next_best_successor_length, next_best_successor = get_best_successor(next_iter_successors, probability = - 1)
+
+    #get length of next successor
+    next_length = calc_tour_length(next_best_successor)
+
+    return next_best_successor_length, next_best_successor
 
 #function for getting the best successor state
 def get_best_successor(successors, probability):
@@ -402,13 +417,26 @@ def get_best_successor(successors, probability):
     second_best_successor_length = calc_tour_length(sorted_successors[1])
     
     #Generate a random number from 0-1 and compare to the proability parameter initialised at the start of program
-    #Return best successor if random number > proability, return second best if random number < probability
-    #Use a low value for probability. I have chosen 0.05. This allows a small chance for the algorithm to accept worse solutions
-    #Allows for improved exploration of search space and ability to escape local optima
     if random.random() < probability:
 
-        return second_best_successor_length, sorted_successors[1]
+        #get the length of best successor of next iteration if current best successor used
+        next_best_successor_length, next_best_successor = get_next(sorted_successors[0])
 
+        #get the length of best successor of next iteration if current second best successor used
+        next_second_best_successor_length, next_second_best_successor = get_next(sorted_successors[1])
+
+        #check if chosing second best successor leads to better length next iteration
+        if next_best_successor_length < next_second_best_successor_length:  
+
+            #if it does not improve the next iteration use best successor
+            return next_best_successor_length, next_best_successor
+        
+        else:
+
+            #if it does improve the next iteration use second best successor
+            return next_second_best_successor_length, next_second_best_successor
+
+    #Return best successor if random number > proability
     else:
 
         return best_successor_length, sorted_successors[0]

@@ -158,7 +158,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile042.txt"
+input_file = "AISearchfile026.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -325,20 +325,24 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
-#print(dist_matrix)
+start_time = time.time()
+
+best_length = math.inf
 
 tour = []
 unvisited_cities = []
 
-# create initial tour
+#function to create initial tour
 def random_tour():
 
     tour = []
 
+    #create a list containing all cities once
     for i in range(num_cities):
 
         unvisited_cities.append(i)
 
+     #construct tour by chosing cities in random order
     for i in range(num_cities):
 
         city = random.choice(unvisited_cities)
@@ -347,45 +351,55 @@ def random_tour():
     
     return tour 
 
-#calculate length of tour
+#function to calculate length of a tour
 def calc_tour_length(tour):
 
+    #initialise tour length
     tour_length = 0
 
+    #for each city in a tour sum the distance to the next city using the distance matrix
     for i in range(0, len(tour)):
 
         tour_length += dist_matrix[tour[i-1]][tour[i]]
 
     return tour_length
 
+#function to get possible successor states
 def get_sucessors(tour):
 
+    #initialise successsor list
     successors = []
-    sum = 0
 
+    #loop over all pairs of cities in a tour except last
     for i in range(0,len(tour) - 1):
 
         for j in range(i+1,len(tour)):
 
             if i != j:
 
+                #for each pair swap the cities to transition to a new state
                 successor = tour.copy()
                 temp = successor[i]
                 successor[i] = successor[j]
                 successor[j] = temp
+
+                #add successor state to list of successor states
                 successors.append(successor)
 
     return successors
 
+#function for getting the best successor state
 def get_best_successor(successors):
 
     best_successor_length = math.inf
     best_successor = []
 
+    #for each successor calculate the tour length
     for successor in successors:
 
         length = calc_tour_length(successor)
 
+        #if current length bettr than best length set current length to best length
         if length < best_successor_length:
 
             best_successor_length = length
@@ -402,26 +416,38 @@ def hill_climbing(tour):
             #break
 
         #print(i)
+
+        #get successors of tour
         successors = get_sucessors(tour)
+
+        #get best successor
         best_successor_length, best_successor = get_best_successor(successors)
+
+        #calculate current distance
         current_dist = calc_tour_length(tour)
 
+        #if no successor better than current distance return current
         if best_successor_length >= current_dist:
 
             return tour, current_dist
 
+        #otherwise update tour to best successor
         else:
 
             tour = best_successor
 
-    return tour, current_dist
+for i in range(1,20000):
 
-start_time = time.time()
+    print(i)
 
-tour = random_tour()
-tour, tour_length = hill_climbing(tour)
+    tour = random_tour()
+    tour, tour_length = hill_climbing(tour)
 
-   
+    if tour_length < best_length:
+        
+        best_length = tour_length
+        best_tour = tour
+
 print(tour_length)
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
