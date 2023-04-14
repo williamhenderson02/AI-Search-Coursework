@@ -393,7 +393,8 @@ def pso(max_it, N, delta):
                 #otherwise create swap tuple with city and adjacent city
                 else: 
 
-                    swap = swap_index, swap_index + 1  # represents the swap of two consecutive cities
+                    #represents the swap of two consecutive cities
+                    swap = swap_index, swap_index + 1
 
                 #add swap to velocity
                 velocity.append(swap)
@@ -453,7 +454,7 @@ def pso(max_it, N, delta):
 
                 swaps += 1
 
-                #create a tuple corresponding to the swap and add it to the velocitys
+                #create a tuple corresponding to the swap and add it to the velocites
                 swap_tuple = i, i + 1
                 velocity.append(swap_tuple)
 
@@ -486,7 +487,7 @@ def pso(max_it, N, delta):
             
         return neighbourhood
 
-    #function to get neighbour
+    #function to get best neighbour
     def get_n_best(neighbourhood):
 
         lengths = []
@@ -627,7 +628,7 @@ def pso(max_it, N, delta):
 
         return next_velocity
 
-    #functoin to get a random epsilon value
+    #function to get a random epsilon value
     def get_epsilon():
         
         #parameters to control distribution
@@ -654,6 +655,7 @@ def pso(max_it, N, delta):
 
         start_length += dist_matrix[p_best[i-1]][p_best[i]]
 
+    #start time at 0
     t = 0
 
     #loop while until time is greater than max iterations
@@ -747,7 +749,6 @@ def pso(max_it, N, delta):
         #update pbest
         p_best = get_min_tour(possible_bests)
 
-
         #increment time
         t += 1
 
@@ -762,7 +763,6 @@ def pso(max_it, N, delta):
 
     #return the best tour and tour length found
     return p_best, end_length
-
 
 #run pso algorithm
 tour, tour_length = pso(max_it ,N , delta)

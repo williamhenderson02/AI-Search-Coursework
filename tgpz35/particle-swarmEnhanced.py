@@ -326,188 +326,338 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
+#set parameters
+max_it = 10
+N = 10
+delta = math.inf
+
 w_start = 0.9
 w_end = 0.4
 alpha = 0.9
 beta = 0.9
 
-max_it = 100
-N = 10
-delta = math.inf
-
+#function for running pso algorithm.
 def pso(max_it, N, delta):
 
     start_time = time.time()
 
+    #function to initialise particle positions
     def initialise_positions(N):
 
+        #create an empty list to store particle
         particles = []
 
+        #pick a random start city used for all particles
         start_city = random.randint(0, num_cities - 1)
 
+        #loop through each particle
         for i in range(N):
 
             tour = [start_city]
             unvisited_cities = [j for j in range(num_cities) if j != start_city]
 
+            #for each particle create a random tour with all cities contained once
             for j in range(num_cities-1):
 
                 city = random.choice(unvisited_cities)
                 tour.append(city)
                 unvisited_cities.remove(city)
 
+            #add particle to particles list
             particles.append(tour)
 
         return particles
 
+    #function to initialise velocities
     def initialise_velocities(N):
 
+        #list for storing velocities
         velocities = []
 
+        #loop for each particle
         for i in range(N):
 
             velocity = []
-    
+
+            #loop for each city    
             for j in range(num_cities - 1):
-            
+                
+                #index 1 so first city is never swapped
+                #pick an index at random            
                 swap_index = random.randint(1, num_cities - 1)
 
+                #if last city chosen create swap tuple with penultimate city
                 if swap_index == num_cities - 1:
                 
                     swap = swap_index - 1, swap_index
 
+                #otherwise create swap tuple with city and adjacent city
                 else: 
 
-                    swap = swap_index, swap_index + 1  # represents the swap of two consecutive cities
+                    #represents the swap of two consecutive cities
+                    swap = swap_index, swap_index + 1
 
+                #add swap to velocity
                 velocity.append(swap)
 
+            #add velocity to list of velocities
             velocities.append(velocity)
 
         return velocities
 
+    #function to get the minumum tour of particles at time = t
     def get_min_tour(tours):
 
         best_length = math.inf
         best_tour = []
 
+        #loop for each particle
         for particle in tours:
 
             tour_length = 0
 
+            #calculate tour length using distance matrix
             for i in range(0, len(particle)):
 
                 tour_length += dist_matrix[particle[i-1]][particle[i]]
 
+            #if length of current particle < best particle length found update best
             if tour_length < best_length:
                 best_length = tour_length
                 best_tour = particle
         
         return best_tour
 
+    #function to get metric distance of one particle to another
+    #in this case it is the number of swaps needed to transform one particle to another
+    #Therefore it is the length of the velocity to transform one particle to another
     def get_metric_distance(particle_a, particle_b):
         
         swaps = 0
         swap_tuple = ()
+        
+        #copy particles as they will be updated temporarily
         linear_order = particle_b.copy()
         sorting = particle_a.copy()
         velocity  = []
 
+        #loop throuh the particle length
         for i in range(1, len(particle_a) - 1):
 
+            #loop until sorting is equal to linear order
             while sorting[i] != linear_order[i]:
 
+                #get index of city from linear order in sorting
                 index = sorting.index(linear_order[i])
 
+                #swap the cities
                 sorting[i], sorting[index] = sorting[index], sorting[i] 
 
                 swaps += 1
 
+                #create a tuple corresponding to the swap and add it to the velocities
                 swap_tuple = i, i + 1
                 velocity.append(swap_tuple)
 
         return swaps, velocity
 
+    #function to get all particles in the neighbourhood of another particle
     def get_neighbourhood(particles,particle):
 
+        #create a list of all potential neighbours
         particle_index = particles.index(particle)
         potential_neighbours = [particles[i] for i in range(len(particles)) if i != particle_index]
         neighbourhood = []
 
+        #do not do any computation if delta is infinity
+        #return all particles
         if delta == math.inf:
 
             return potential_neighbours
 
+        #loop through potential neighbours
         for neighbour in potential_neighbours:
 
+            #get the metric distance and swap velocity between potential neighbour and particle
             distance, velocity = get_metric_distance(particle, neighbour)
 
             if distance <= delta:
 
+                #add neighbour to neighbourhood if metric distance is less than delta
                 neighbourhood.append(neighbour)
             
         return neighbourhood
 
+    #function to get best neighbour
     def get_n_best(neighbourhood):
 
         lengths = []
 
+        #loop for each particle in neighbourhood 
         for particle in neighbourhood:
 
             tour_length = 0
 
+            #calcualte the tour length
             for i in range(0, len(particle)):
 
                 tour_length += dist_matrix[particle[i-1]][particle[i]]
 
+            #add tour length to lengths list
             lengths.append(tour_length)
 
+        #set nbest as minimum in lengths list
         n_best = min(lengths)
 
         return n_best
 
-    def transform_particle_position(particle, velocitity):
+    #function to apply a velocity to a particle
+    def transform_particle_position(particle, velocity):
 
         particle_transformed = particle.copy()
 
+        #loop through velocity
         for i in velocity:
 
-            index = i[0]
-            particle_transformed[index], particle_transformed[index + 1] = particle_transformed[index + 1], particle_transformed[index]
+            #swap city using swap tuple
+            #updated compared to basic to handle advanced_swap_mutation function
+            index_1 = i[0]
+            index_2 = i[1]
+            particle_transformed[index_1], particle_transformed[index_2] = particle_transformed[index_2], particle_transformed[index_1]
 
         return particle_transformed
 
+    #funtion to compose particle and neighbourhood velocity vectors
     def compose_particle_velocity(particle, velocity, p_hat, n_best):
 
+        #get the velocity for the difference of phat and the particle
         particle_swaps, particle_contribution = get_metric_distance(particle, p_hat)
 
         if n_best != math.inf:
 
+            #get the velocity for the difference of n best and the particle
             neighbourhood_swaps, neighbourhood_contribution = get_metric_distance(particle, n_best)
 
         else:
 
+            #if there are no neighbours in the neighbourhood set the neighourhood to empty
             neighbourhood_swaps = 0
             neighbourhood_contribution = []
 
         return particle_swaps, particle_contribution, neighbourhood_swaps, neighbourhood_contribution
 
+    #function to calculate the inertia weight
     def inertia_function(t, w_start, w_end):
 
+        #below is a linearly decreasing inertia function
+
+        #at the beginning of the algorithm when the inertia weight is high the particles have a tendency to explore the search space more
+        #this can help to avoid getting stuck in local optima
+
+        #by decreasing inertia weight over time the particles can exploit promising areas of the search space and converge towards the gloabl optium
         w = w_start - ((w_start - w_end) * t) / max_it
 
         return w
 
+    #below are 4 functions for enhancements to my pso algorithm
+    #these functions are different methods to randomly mutate velocities
+    #the epsilon funciton in my basic implementation randomly mutates velocities
+    #these functions replace the epsilon method used in my basic implementation therefore it has been removed
+
+    #further instructions can be found explaining how to change mutation function in the main while loop
+    #approx lines 785-800
+
+    #mutation method 1
+    #swaps random tuple with adjacent tuple
+    def swap_mutation(velocity):
+
+        if len(velocity) > 1:
+
+            #choose a random swap index 
+            swap_index =  random.randint(0, len(velocity) - 2)
+
+            #swap tuple in velocity with adjacent tuple
+            velocity[swap_index], velocity[swap_index + 1] = velocity[swap_index + 1], velocity[swap_index]
+
+        return velocity
+
+    #mutation method 2
+    #swaps first number of random tuple with 1 number of another random tuple
+    def advanced_swap_mutation(velocity):
+
+        if len(velocity) > 1:
+
+            #choose 2 random swap indices
+            #not neccessarily distinct to allow for random chance of no swaps made
+            swap_index_1 = random.randint(0, len(velocity) - 2)
+            swap_index_2 = random.randint(0, len(velocity) - 2)
+
+            #create new tuple by taking first number from first tuple and second number from second tuple
+            swap_1_new = (velocity[swap_index_1][0], velocity[swap_index_2][1])
+
+            #create new tuple by taking first number from second tuple and second number from first tuple
+            swap_2_new = (velocity[swap_index_2][0], velocity[swap_index_1][1])
+
+            #update tuples in velocity
+            velocity[swap_index_1], velocity[swap_index_2] = swap_1_new, swap_2_new
+
+        return velocity
+
+    #mutation method 3
+    #swaps tuple with another random tuple
+    def insertion_mutation(velocity):
+
+        if len(velocity) > 1:
+
+            #create 2 random swap indices
+            #not neccessarily distinct to allow for random chance of no swaps made
+            swap_index_1 = random.randint(0, len(velocity) - 2)
+            swap_index_2 = random.randint(0, len(velocity) - 2)
+
+            #swap tuple at index 1 with tuple at index 2
+            velocity[swap_index_1], velocity[swap_index_2] = velocity[swap_index_2], velocity[swap_index_1]
+
+        return velocity
+    
+    #mutation method 4
+    #chose random subsection of velocity and reverse order of tuples
+    def inversion_mutation(velocity):
+        
+        #generate a random start index
+        start_index = random.randint(0, len(velocity) - 1)
+
+        #calculate max subsequence length
+        max_length = len(velocity) - start_index
+
+        #generate random subsequence length
+        subsequence_length = random.randint(1, max_length)
+
+        #take subsequence from velocity
+        subsequence = velocity[start_index:start_index+subsequence_length]
+
+        #reverse the subsequences
+        subsequence_reversed = subsequence[::-1]
+
+        #update velocity to insert reversed subsequence back into velocity
+        velocity[start_index:start_index+subsequence_length] = subsequence_reversed + velocity[start_index+subsequence_length:]
+
+        return velocity
+
+
+    #function to multiply velocity by a weight
     def multiply_velocity(weight, velocity):
 
         length = len(velocity)
 
+        #no calculation needed
         if weight == 1:
 
             return velocity
 
+        #for weights less than 1
         elif weight < 1:
 
+            #find number of swaps and take from velocity
             nums_to_take = int((length) * (weight))
             velocity = velocity[0:nums_to_take]
 
@@ -515,12 +665,14 @@ def pso(max_it, N, delta):
 
         else:
 
+            #for weights greater than 1 split weight into integer and decimal parts
             decimal_weight = decimal.Decimal(str(weight))
             integer_part = int(decimal_weight)
             decimal_part = float(decimal_weight - integer_part)
             decimal_velocity = velocity.copy()
             integer_velocity = velocity.copy()
 
+            #for an integer n take the entire velocity n times
             for i in range(1,integer_part):
 
                 if len(integer_velocity) != 0:
@@ -529,8 +681,10 @@ def pso(max_it, N, delta):
 
                         velocity.append(integer_velocity[j])
 
+            #for non 0 decimal
             if decimal_part != 0:
 
+                #find number of swaps and take from velocity
                 nums_to_take = int((length) * (decimal_part))
                 decimal_velocity = decimal_velocity[0:nums_to_take]
 
@@ -538,6 +692,7 @@ def pso(max_it, N, delta):
 
                 decimal_velocity = None
 
+            #add veloicty to integer velocity
             if decimal_velocity != None:
 
                 for i in range(len(decimal_velocity)):
@@ -546,58 +701,40 @@ def pso(max_it, N, delta):
 
             return velocity
 
+    #function to calculate next velocity
     def calc_next_velocity(inertia, cognitive_factor, social_factor):
 
         next_velocity = []
 
         if len(inertia) != 0:
 
+            #add inertia velocity to next velocity
             for i in range(len(inertia)):
 
                 next_velocity.append(inertia[i])
 
         if len(cognitive_factor) != 0:
 
+            #add cognitive factor velocity to next velocity
             for i in range(len(cognitive_factor)):
 
                 next_velocity.append(cognitive_factor[i])
 
         if len(social_factor) != 0:
 
+            #add social factor velocity to next velocity   
             for i in range(len(social_factor)):
 
                 next_velocity.append(social_factor[i])
 
         return next_velocity
-
-    def get_epsilon():
-        
-        omega = 10
-        phi = 2
-
-        epsilon = random.betavariate(omega, phi)
     
-        return epsilon
-
-    def apply_epsilon(epsilon, velocity):
-
-        length = len(velocity)
-
-        swaps_to_add = int((length) * (epsilon))
-
-        for i in range(swaps_to_add):
-            
-            random_tuple = ()
-            num = random.randint(1, length - 1)
-            random_tuple = num, num + 1
-            
-            velocity.append(random_tuple)
-
-        return velocity
-
+    #initialise particles and velocities
     particles = initialise_positions(N)
     p_hats = particles.copy()
     velocities = initialise_velocities(N)
+
+    #initialise pbest
     p_best = get_min_tour(p_hats)
 
     start_length = 0
@@ -606,8 +743,10 @@ def pso(max_it, N, delta):
 
         start_length += dist_matrix[p_best[i-1]][p_best[i]]
 
+    #start time at 0
     t = 0
 
+    #loop while until time is greater than max iterations
     while t < max_it:
 
         #if time.time() - start_time > 58:
@@ -616,15 +755,19 @@ def pso(max_it, N, delta):
 
         print("t -------------------------------------", t)
 
+        #create list of possible best tours for an iteration
         possible_bests = [p_best]
 
+        #loop for each particle
         for particle in particles:
 
+            #get the index, velocity, neighbourhood and phat of a particle
             index = particles.index(particle)
             velocity = velocities[index]
             neighbourhood = get_neighbourhood(particles,particle)
             p_hat = p_hats[index]
 
+            #get best neighbour in neighbourhood
             if len(neighbourhood) != 0:
 
                 n_best = get_min_tour(neighbourhood)
@@ -633,53 +776,67 @@ def pso(max_it, N, delta):
 
                 n_best = math.inf
 
+            #update particle position
             next_position = transform_particle_position(particle,velocity)
 
+            #get the particle and neighbourhood contribution velocities
             particle_swaps, particle_contribution, neighbourhood_swaps, neighbourhood_contribution = compose_particle_velocity(particle, velocity, p_hat, n_best)
 
+            #get the inertia weight using an inertia function at current time t
             inertia_weight = inertia_function(t, w_start, w_end)
 
             if len(particle_contribution) != 0 and particle_swaps != 0:
-                
-                epsilon = get_epsilon()
 
-                particle_contribution = multiply_velocity(epsilon, particle_contribution)
+                #mutate particle contribution velocity
+                #to use a different mutation method uncomment the desired method and comment the undersired method
 
-            else:
-
-                epsilon = 0
+                #particle_contribution = swap_mutation(particle_contribution)
+                #particle_contribution = advanced_swap_mutation(particle_contribution)
+                particle_contribution = insertion_mutation(particle_contribution)
+                #particle_contribution = inversion_mutation(particle_contribution)
 
             if len(neighbourhood_contribution) != 0 and neighbourhood_swaps != 0:
 
-                epsilon_prime = get_epsilon()
+                #mutate neighbourhood contribution velocity
+                #to use a different mutation method uncomment the desired method and comment the undersired method
 
-                neighbourhood_contribution = multiply_velocity(epsilon, neighbourhood_contribution)
+                #neighbourhood_contribution = swap_mutation(neighbourhood_contribution)
+                #neighbourhood_contribution = advanced_swap_mutation(neighbourhood_contribution)
+                neighbourhood_contribution = insertion_mutation(neighbourhood_contribution)
+                #neighbourhood_contribution = inversion_mutation(neighbourhood_contribution)
 
-            else:
-
-                epsilon_prime = 0
-                
+            #multiply particle by inertia                    
             inertia = multiply_velocity(inertia_weight, velocity)
 
+            #multiply particle contribution by alpha
             cognitive_factor = multiply_velocity(alpha, particle_contribution)
 
+            #multiply neighbourhood contribution by beta
             social_factor = multiply_velocity(beta, neighbourhood_contribution)
         
+            #calculate next valocity        
             next_velocity = calc_next_velocity(inertia, cognitive_factor, social_factor)
 
+            #create list to compare next particle and current phat
             compare_tours = []
             compare_tours.append(next_position)
             compare_tours.append(p_hat)
 
+            #update phat
             next_p_hat = get_min_tour(compare_tours)
+            
+            #add phat to possible best list
             possible_bests.append(next_p_hat)
 
+            #update particles, velocities and p_hats
             particles[index] = next_position
             velocities[index] = next_velocity
             p_hats[index] = next_p_hat
 
+        #update pbest
         p_best = get_min_tour(possible_bests)
 
+        #increment time
         t += 1
 
     end_length = 0
@@ -691,8 +848,10 @@ def pso(max_it, N, delta):
     print("start length", start_length)
     print("end length", end_length)
 
+    #return the best tour and tour length found
     return p_best, end_length
 
+#run pso algorithm
 tour, tour_length = pso(max_it, N, delta)
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
