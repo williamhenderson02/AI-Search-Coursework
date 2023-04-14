@@ -159,7 +159,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile021.txt"
+input_file = "AISearchfile012.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -320,11 +320,20 @@ print("   your algorithm code is legal and is " + algorithm_code + " -" + code_d
 ############
 ############ END OF SECTOR 8 (IGNORE THIS COMMENT)
 
-added_note = "Particles 90"
+added_note = ""
 
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
+
+w_start = 0.9
+w_end = 0.4
+alpha = 0.9
+beta = 0.9
+
+max_it = 100
+N = 10
+delta = math.inf
 
 def pso(max_it, N, delta):
 
@@ -358,15 +367,11 @@ def pso(max_it, N, delta):
         for i in range(N):
 
             velocity = []
-
-            #potentially add a max number of times a city can be swapped
+    
             for j in range(num_cities - 1):
-                #index 1 so first city is never swapped
-                swap_index = random.randint(1, num_cities - 1)  # choose one of the cities in the swap
+            
+                swap_index = random.randint(1, num_cities - 1)
 
-                #last city has 2 ways to get swapped and not just 1
-                #downside is penultimate city now has 3 ways to be swapped so more likeley to be swapped than other cities
-                #better than all cities having twice the chance as last city
                 if swap_index == num_cities - 1:
                 
                     swap = swap_index - 1, swap_index
@@ -602,10 +607,6 @@ def pso(max_it, N, delta):
         start_length += dist_matrix[p_best[i-1]][p_best[i]]
 
     t = 0
-    w_start = 0.9
-    w_end = 0.4
-    alpha = 0.9
-    beta = 0.9
 
     while t < max_it:
 
@@ -692,7 +693,7 @@ def pso(max_it, N, delta):
 
     return p_best, end_length
 
-tour, tour_length = pso(100000,90,math.inf)
+tour, tour_length = pso(max_it, N, delta)
 
 ############ START OF SECTOR 9 (IGNORE THIS COMMENT)
 ############
