@@ -158,7 +158,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile058.txt"
+input_file = "AISearchfile042.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -266,7 +266,6 @@ print("The codes and tariffs have been read from 'alg_codes_and_tariffs.txt':")
 ############
 ############ END OF SECTOR 5 (IGNORE THIS COMMENT)
 
-my_user_name = "tgp35"
 
 ############ START OF SECTOR 6 (IGNORE THIS COMMENT)
 ############
@@ -329,7 +328,7 @@ start_time = time.time()
 
 #parameters used for enhancments
 max_iter = 1000
-restarts = 150000
+restarts = 600000
 probability = 0.01
 
 tour = []
@@ -446,7 +445,7 @@ def hill_climbing(tour,max_iter,probability):
 
     #Instead of looping forever such as the basic implementation loop for max number of iterations
     #allows for ealier termination if stuck in local optima so more restarts can be done by the run_hill_climbing funciton
-    for j in range(0,max_iter):
+    for i in range(0,max_iter):
 
         #if time.time() - start_time > 58:
             

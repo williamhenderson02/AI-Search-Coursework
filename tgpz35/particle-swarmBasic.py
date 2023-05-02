@@ -159,7 +159,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile012.txt"
+input_file = "AISearchfile021.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -328,11 +328,11 @@ added_note = ""
 
 #set parameters
 inertia_weight = 0.9
-alpha = 0.9
-beta = 0.9
+alpha = 0.3
+beta = 0.5
 
-max_it = 100
-N = 10
+max_it = 2500000
+N = 70
 delta = math.inf
 
 #function for running pso algorithm.

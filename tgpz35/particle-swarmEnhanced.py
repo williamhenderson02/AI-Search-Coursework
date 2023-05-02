@@ -159,7 +159,7 @@ def read_in_algorithm_codes_and_tariffs(alg_codes_file):
 ############
 ############ END OF SECTOR 1 (IGNORE THIS COMMENT)
 
-input_file = "AISearchfile012.txt"
+input_file = "AISearchfile535.txt"
 
 ############ START OF SECTOR 2 (IGNORE THIS COMMENT)
 ############
@@ -267,7 +267,7 @@ print("The codes and tariffs have been read from 'alg_codes_and_tariffs.txt':")
 ############
 ############ END OF SECTOR 5 (IGNORE THIS COMMENT)
 
-my_user_name = "tgp35"
+my_user_name = "tgpz35"
 
 ############ START OF SECTOR 6 (IGNORE THIS COMMENT)
 ############
@@ -320,21 +320,21 @@ print("   your algorithm code is legal and is " + algorithm_code + " -" + code_d
 ############
 ############ END OF SECTOR 8 (IGNORE THIS COMMENT)
 
-added_note = ""
+added_note = "N = 100, alpha = 0.3, beta = 0.5, delta = inf"
 
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
 #set parameters
-max_it = 10
-N = 10
+max_it = 1000
+N = 100
 delta = math.inf
 
-w_start = 0.9
+w_start = 0.8
 w_end = 0.4
-alpha = 0.9
-beta = 0.9
+alpha = 0.3
+beta = 0.5
 
 #function for running pso algorithm.
 def pso(max_it, N, delta):
